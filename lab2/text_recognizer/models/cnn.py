@@ -19,8 +19,9 @@ class ConvBlock(nn.Module):
 
     def __init__(self, input_channels: int, output_channels: int) -> None:
         super().__init__()
-        self.conv = nn.Conv2d(input_channels, output_channels, kernel_size=3, stride=1, padding=1)
+        self.conv1 = nn.Conv2d(input_channels, output_channels, kernel_size=3, stride=1, padding=1)
         self.relu = nn.ReLU()
+        self.conv2 = nn.Conv2d(output_channels, output_channels, kernel_size=3, stride=1, padding=1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -34,9 +35,15 @@ class ConvBlock(nn.Module):
         torch.Tensor
             of dimensions (B, C, H, W)
         """
-        c = self.conv(x)
-        r = self.relu(c)
-        return r
+        identity = x
+        out = self.conv1(x)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out += identity
+        out = self.relu(out)
+
+        return out
 
 
 class CNN(nn.Module):
